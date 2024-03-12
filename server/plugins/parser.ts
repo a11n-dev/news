@@ -1,46 +1,48 @@
+import OpenAI from "openai";
 import puppeteer from "puppeteer";
 import Parser from "@postlight/parser";
 import { JSDOM } from "jsdom";
-import OpenAI from "openai";
 
 import { Articles } from "~/server/models/article.model";
 
 const openai = new OpenAI();
 
-let options = {};
+const puppeteerOptions = {
+  args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+};
+const resource = {
+  link: "https://coinmarketcap.com/headlines/news/",
+  postSelector: ".infinite-scroll-component .sc-b1d35755-0",
+  linkSelector: "a",
+};
 
-export default defineNitroPlugin(async () => {
+export default defineNitroPlugin(() => {
   try {
     if (process.env.NODE_ENV !== "production") return;
 
-    options = {
-      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
-    };
-
-    console.log("Parsing cycle started...");
-    parseArticles();
-
-    setInterval(async () => {
-      console.log("Parsing cycle started...");
-      parseArticles();
-    }, 1000 * 60 * 30);
+    // Start parsing cycle on server start
+    // startParsingCycle();
+    setInterval(startParsingCycle, 1000 * 60 * 30);
   } catch (error) {
     console.error(error);
   }
 });
 
-async function parseArticles() {
-  const resource = {
-    link: "https://coinmarketcap.com/headlines/news/",
-    postSelector: ".infinite-scroll-component .sc-b1d35755-0",
-    linkSelector: "a",
-  };
-
-  // Launch headless Chrome
-  const browser = await puppeteer.launch(options);
-  const page = await browser.newPage();
-
+async function startParsingCycle() {
+  console.log("Parsing cycle started...");
   try {
+    await parseArticles();
+  } catch (error) {
+    console.error("Error during parsing cycle:", error);
+  }
+}
+
+async function parseArticles() {
+  try {
+    // Launch headless Chrome
+    const browser = await puppeteer.launch(puppeteerOptions);
+    const page = await browser.newPage();
+
     // Navigate to the resource URL
     await page.goto(resource.link);
 
@@ -99,7 +101,6 @@ async function parseArticles() {
     await browser.close();
     console.log("Parsing cycle ended.");
   } catch (error) {
-    await browser.close();
     console.log("Parsing cycle ended with errors.", error);
   }
 }
