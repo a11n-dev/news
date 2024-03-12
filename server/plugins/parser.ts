@@ -17,6 +17,9 @@ export default defineNitroPlugin(async () => {
       args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
     };
 
+    console.log("Parsing cycle started...");
+    parseArticles();
+
     setInterval(async () => {
       console.log("Parsing cycle started...");
       parseArticles();
