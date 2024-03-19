@@ -8,7 +8,9 @@ import { randomBytes } from "crypto";
 
 import { Articles } from "~/server/models/article.model";
 
-const openai = new OpenAI();
+const openai = new OpenAI({
+  apiKey: useRuntimeConfig().OPENAI_API_KEY,
+});
 
 const s3 = new S3Client({
   region: useRuntimeConfig().S3_BUCKET_REGION,
