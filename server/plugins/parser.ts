@@ -102,6 +102,8 @@ async function parseArticles() {
 
       const imageKey = await uploadImageToS3(data.lead_image_url);
 
+      if (!imageKey) continue;
+
       await Articles.create({
         title: modifiedContent.title,
         thumbnail: `https://${useRuntimeConfig().S3_BUCKET_NAME}.s3.${useRuntimeConfig().S3_BUCKET_REGION}.amazonaws.com/${imageKey}`,
@@ -124,7 +126,7 @@ async function parseArticles() {
 async function uploadImageToS3(imageUrl: string) {
   const response = await fetch(imageUrl);
 
-  if (!response.ok) throw new Error("Failed to fetch image from URL.");
+  if (!response.ok) return null;
 
   const buffer = Buffer.from(await response.arrayBuffer());
 

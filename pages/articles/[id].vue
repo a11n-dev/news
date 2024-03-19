@@ -42,6 +42,10 @@ const modifiedContentHTML = computed(() => {
       class="article-content"
     ></div>
 
+    <div>
+      <NuxtLink :to="article.articleLink" external class="text-[#3b82f6]">Original Source</NuxtLink>
+    </div>
+
     <button
       @click="$router.go(-1)"
       class="block w-full text-center bg-gray-100 p-2 rounded-xl mt-4 mb-12"

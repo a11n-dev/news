@@ -30,7 +30,7 @@ export default defineNuxtConfig({
     name: "Crypto Moon Insider",
     description: "The latest news on cryptocurrency and blockchain technology.",
     defaultLocale: "en",
-    indexable: false
+    indexable: true
   },
 
   colorMode: {
