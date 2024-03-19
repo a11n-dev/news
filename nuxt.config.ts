@@ -6,11 +6,14 @@ export default defineNuxtConfig({
     MGDB_URI: process.env.MGDB_URI,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     OPENAI_MODEL_ID: process.env.OPENAI_MODEL_ID,
+    S3_ACCESS_KEY: process.env.S3_ACCESS_KEY,
+    S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY,
+    S3_BUCKET_NAME: process.env.S3_BUCKET_NAME,
+    S3_BUCKET_REGION: process.env.S3_BUCKET_REGION,
   },
 
   app: {
     head: {
-      title: "Crypto Space News — The latest news in the crypto space",
       link: [
         {
           rel: "stylesheet",
@@ -20,7 +23,15 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ["@nuxt/ui"],
+  modules: ["@nuxt/ui", "@nuxtjs/seo"],
+
+  site: {
+    url: "https://www.cryptomooninsider.com",
+    name: "Crypto Moon Insider",
+    description: "The latest news on cryptocurrency and blockchain technology.",
+    defaultLocale: "en",
+    indexable: false
+  },
 
   colorMode: {
     preference: "light",

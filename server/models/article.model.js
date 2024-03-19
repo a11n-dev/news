@@ -6,6 +6,7 @@ const ArticlesSchema = new Schema(
     thumbnail: { type: String, required: true },
     contentHTML: { type: String, required: true },
     excerpt: { type: String, required: true },
+    author: { type: String, required: true },
     articleLink: { type: String, required: true },
   },
   { collection: "articles", timestamps: true }

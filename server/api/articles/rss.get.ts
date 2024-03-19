@@ -2,11 +2,9 @@ import { Articles } from "~/server/models/article.model";
 
 export default defineEventHandler(async (event) => {
   try {
-    const articleId = getRouterParam(event, "id");
+    const articles = await Articles.find({}).sort({ createdAt: -1 }).limit(20);
 
-    const article = await Articles.findOne({ _id: articleId });
-
-    return article;
+    return articles;
   } catch (error) {
     throw createError({
       status: 500,
