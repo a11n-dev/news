@@ -33,7 +33,7 @@ export default defineNitroPlugin(() => {
       if (process.env.NODE_ENV !== "production") return;
 
       // Start parsing cycle on server start
-      // startParsingCycle();
+      startParsingCycle();
       setInterval(startParsingCycle, 1000 * 60 * 30);
     });
   } catch (error) {
