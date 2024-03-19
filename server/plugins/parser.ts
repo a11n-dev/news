@@ -30,7 +30,7 @@ const resource = {
 export default defineNitroPlugin(() => {
   try {
     mongoose.connection.on("connected", () => {
-      // if (process.env.NODE_ENV !== "production") return;
+      if (process.env.NODE_ENV !== "production") return;
 
       // Start parsing cycle on server start
       startParsingCycle();
