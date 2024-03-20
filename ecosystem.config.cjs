@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'NuxtAppName',
+      name: 'CryptoMoonInsider',
       port: '3000',
       exec_mode: 'cluster',
       instances: 'max',
