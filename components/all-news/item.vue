@@ -15,12 +15,16 @@ defineProps<{
         class="text-lg font-semibold mb-3"
       ></h5>
 
-      <span v-html="article.excerpt" class="line-clamp-4"></span>
+      <span
+        v-html="article.excerpt"
+        class="line-clamp-4"
+      ></span>
     </div>
 
     <div class="relative min-w-[300px] h-[200px] rounded-xl overflow-hidden lg:order-2 order-1">
-      <img
+      <NuxtImg
         :src="article.thumbnail"
+        loading="lazy"
         class="absolute inset-0 h-full w-full object-cover"
       />
     </div>

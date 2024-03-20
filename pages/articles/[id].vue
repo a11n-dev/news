@@ -31,8 +31,9 @@ const modifiedContentHTML = computed(() => {
     </div>
 
     <div class="rounded-xl overflow-hidden mb-6">
-      <img
+      <NuxtImg
         :src="article.thumbnail"
+        loading="lazy"
         class="w-full"
       />
     </div>
@@ -43,7 +44,12 @@ const modifiedContentHTML = computed(() => {
     ></div>
 
     <div>
-      <NuxtLink :to="article.articleLink" external class="text-[#3b82f6]">Original Source</NuxtLink>
+      <NuxtLink
+        :to="article.articleLink"
+        external
+        class="text-[#3b82f6]"
+        >Original Source</NuxtLink
+      >
     </div>
 
     <button

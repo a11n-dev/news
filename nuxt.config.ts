@@ -23,17 +23,29 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ["@nuxt/ui", "@nuxtjs/seo"],
+  modules: ["@nuxt/ui", "@nuxtjs/seo", "nuxt-gtag", "@nuxt/image"],
+
+  colorMode: {
+    preference: "light",
+  },
+
+  image: {
+    formats: ["webp"],
+  },
+
+  gtag: {
+    id: "G-RJDGHZLG2W",
+  },
 
   site: {
     url: "https://www.cryptomooninsider.com",
     name: "Crypto Moon Insider",
     description: "The latest news on cryptocurrency and blockchain technology.",
     defaultLocale: "en",
-    indexable: true
+    indexable: true,
   },
 
-  colorMode: {
-    preference: "light",
+  sitemap: {
+    sources: ["/api/sitemap"],
   },
 });

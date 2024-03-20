@@ -2,7 +2,10 @@ import { Articles } from "~/server/models/article.model";
 
 export default defineEventHandler(async (event) => {
   try {
-    const articles = await Articles.find({}).sort({ createdAt: -1 }).limit(20);
+    const { page } = await readBody(event);
+
+    const skip = (page - 1) * 20 + 3;
+    const articles = await Articles.find({}).sort({ createdAt: -1 }).skip(skip).limit(20);
 
     return articles;
   } catch (error) {

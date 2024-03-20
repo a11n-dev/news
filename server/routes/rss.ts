@@ -1,16 +1,15 @@
 import RSS from "rss";
 
+import { Articles } from "~/server/models/article.model";
+
 export default defineEventHandler(async (event) => {
-  // wrap everything in a try catch block
   try {
-    const response = await fetch("https://cryptomooninsider.com/api/articles/rss", { method: "GET" });
+    const articles = await Articles.find({}).sort({ createdAt: -1 }).limit(20);
 
-    if (!response.ok) {
-      throw new Error(response?.statusText);
+    if (!articles) {
+      throw new Error("No articles found");
     }
-
-    const posts = await response.json();
-
+    
     const feed = new RSS({
       title: "Crypto Moon Insider",
       site_url: "https://cryptomooninsider.com",
@@ -18,13 +17,13 @@ export default defineEventHandler(async (event) => {
       language: "en",
     });
 
-    for (const post of posts) {
+    for (const article of articles) {
       feed.item({
-        title: post.title, // title from post to item title
-        url: `https://cryptomooninsider.com/articles/${post._id}`, // full path to where our article is hosted
-        description: post.contentHTML, // description of the article
-        date: post.createdAt, // date post was created
-        author: post.author, // author of the post
+        title: article.title, // title from post to item title
+        url: `https://cryptomooninsider.com/articles/${article._id}`, // full path to where our article is hosted
+        description: article.contentHTML, // description of the article
+        date: article.createdAt, // date post was created
+        author: article.author, // author of the post
       });
     }
     const feedString = feed.xml({ indent: true }); //This returns the XML as a string.

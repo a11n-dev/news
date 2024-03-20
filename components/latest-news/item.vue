@@ -9,8 +9,9 @@ defineProps<{
     :to="`/articles/${article._id}`"
     class="block relative rounded-xl overflow-hidden transform-gpu transition-transform duration-300 hover:scale-105"
   >
-    <img
+    <NuxtImg
       :src="article.thumbnail"
+      loading="lazy"
       class="absolute inset-0 h-full w-full object-cover"
     />
 

@@ -4,15 +4,15 @@
 
     <NuxtLink
       to="/"
-      class="flex items-center mx-auto"
+      class="flex items-center justify-center"
     >
-      <img
-        src="/img/moon-2.png"
-        alt="logo"
-        class="max-w-[72px] mr-6"
+      <NuxtImg
+        src="/img/logo.png"
+        loading="lazy"
+        class="mr-4 w-[56px] sm:w-[72px]"
       />
 
-      <span class="text-5xl font-bold">Crypto Moon Insider</span>
+      <span class="text-4xl sm:text-5xl font-bold">Crypto Moon Insider</span>
     </NuxtLink>
   </div>
 </template>

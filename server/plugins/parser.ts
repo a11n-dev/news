@@ -36,12 +36,23 @@ export default defineNitroPlugin(() => {
 
       // Start parsing cycle on server start
       startParsingCycle();
-      setInterval(startParsingCycle, 1000 * 60 * 30);
+      startRandomInterval();
     });
   } catch (error) {
     console.error(error);
   }
 });
+
+function startRandomInterval() {
+  // Generate a random delay between 30 and 45 minutes
+  const delay = Math.random() * (45 - 30) + 30;
+
+  // Call the function after the delay
+  setTimeout(() => {
+    startParsingCycle();
+    startRandomInterval();
+  }, delay * 60 * 1000);
+}
 
 async function startParsingCycle() {
   console.log("Parsing cycle started...");

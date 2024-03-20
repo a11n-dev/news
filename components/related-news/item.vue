@@ -10,8 +10,9 @@ defineProps<{
     class="flex md:flex-row flex-col justify-between gap-6"
   >
     <div class="relative min-w-[300px] h-[200px] rounded-xl overflow-hidden">
-      <img
+      <NuxtImg
         :src="article.thumbnail"
+        loading="lazy"
         class="absolute inset-0 h-full w-full object-cover"
       />
     </div>
