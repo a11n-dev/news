@@ -17,12 +17,13 @@ defineProps<{
 
     <div class="absolute inset-0 bg-black bg-opacity-40 z-10"></div>
 
-    <div class="absolute bottom-0 p-6 z-20">
+    <div class="absolute bottom-0 p-6 z-20 flex flex-col">
       <h5
         v-text="article.title"
         class="text-lg font-semibold line-clamp-2 text-white"
       ></h5>
       <small class="text-gray-300">{{ new Date(article.createdAt).toLocaleString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).toUpperCase() }}</small>
+      <span class="text-white">{{ article.author }}</span>
     </div>
   </NuxtLink>
 </template>

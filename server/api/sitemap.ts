@@ -7,11 +7,6 @@ export default defineSitemapEventHandler(async (e) => {
     return {
       loc: `/articles/${article._id}`,
       lastmod: article.updatedAt,
-      images: [
-        {
-          loc: article.image,
-        }
-      ]
     };
   });
 });

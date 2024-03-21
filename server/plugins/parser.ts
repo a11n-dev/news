@@ -29,6 +29,8 @@ const resource = {
   linkSelector: "a",
 };
 
+const authors = ["Jasmine Chen", "Samantha Carter", "George Hammond", "Marcus Lee", "Kirill Novotarskiy"];
+
 export default defineNitroPlugin(() => {
   try {
     mongoose.connection.on("connected", () => {
@@ -122,7 +124,7 @@ async function parseArticles() {
         thumbnail: `https://${useRuntimeConfig().S3_BUCKET_NAME}.s3.${useRuntimeConfig().S3_BUCKET_REGION}.amazonaws.com/${imageKey}`,
         contentHTML: modifiedContent.contentHTML,
         excerpt: data.excerpt,
-        author: "Jasmine Chen",
+        author: authors[Math.floor(Math.random() * authors.length)],
         articleLink: originUrl.origin + originUrl.pathname,
       });
 

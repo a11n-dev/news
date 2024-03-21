@@ -27,8 +27,10 @@ defineProps<{
 
       <span
         v-html="article.excerpt"
-        class="line-clamp-4"
+        class="line-clamp-4 mb-1"
       ></span>
+
+      <span class="text-gray-400">{{ article.author }}</span>
     </div>
   </NuxtLink>
 </template>

@@ -48,8 +48,10 @@ const modifiedContentHTML = computed(() => {
         :to="article.articleLink"
         external
         class="text-[#3b82f6]"
-        >Original Source</NuxtLink
+        target="_blank"
       >
+        Original Source
+      </NuxtLink>
     </div>
 
     <button
