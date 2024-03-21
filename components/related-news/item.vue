@@ -17,7 +17,7 @@ defineProps<{
       />
     </div>
 
-    <div>
+    <div class="w-full">
       <h5
         v-text="article.title"
         class="text-lg font-semibold mb-2"
