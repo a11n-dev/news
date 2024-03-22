@@ -9,6 +9,10 @@ const modifiedContentHTML = computed(() => {
   if (!article.value?.contentHTML) return "";
   // Modify the contentHTML value here
   let modifiedHtml = article.value.contentHTML.trim().replace(/^["{]+|["}]+$/g, "");
+
+  // Add the author's name at the beginning of the first <p> tag
+  modifiedHtml = modifiedHtml.replace(/<p>/, `<p>${article.value.author}: `);
+
   return modifiedHtml;
 });
 </script>
@@ -27,7 +31,6 @@ const modifiedContentHTML = computed(() => {
         class="text-3xl mb-2"
       ></h1>
       <small class="text-gray-600">{{ new Date(article.createdAt).toLocaleString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).toUpperCase() }}</small>
-      <span>{{ article.author }}</span>
     </div>
 
     <div class="rounded-xl overflow-hidden mb-6">
@@ -42,6 +45,10 @@ const modifiedContentHTML = computed(() => {
       v-html="modifiedContentHTML"
       class="article-content"
     ></div>
+
+    <div class="mb-2">
+      <span>By {{ article.author }}</span>
+    </div>
 
     <div>
       <NuxtLink
@@ -80,6 +87,7 @@ const modifiedContentHTML = computed(() => {
   p {
     margin-bottom: 1rem;
   }
+
   ul,
   ol {
     margin-bottom: 1rem;
