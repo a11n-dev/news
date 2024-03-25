@@ -27,7 +27,7 @@
   "devDependencies": {
     "@nuxtjs/seo": "^2.0.0-rc.9",
     "@types/rss": "^0.0.32",
-    "nuxt": "^3.10.3",
+    "nuxt": "^3.11.1",
     "nuxt-gtag": "^2.0.5",
     "sass": "^1.72.0"
   },

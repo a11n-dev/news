@@ -6,23 +6,26 @@ import { JSDOM } from "jsdom";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { randomBytes } from "crypto";
 
-import { Articles } from "~/server/models/article.model";
+import { Article } from "~/server/models/article.model";
+
+const config = useRuntimeConfig();
 
 const openai = new OpenAI({
-  apiKey: useRuntimeConfig().OPENAI_API_KEY,
+  apiKey: config.OPENAI_API_KEY,
 });
 
 const s3 = new S3Client({
-  region: useRuntimeConfig().S3_BUCKET_REGION,
+  region: config.S3_BUCKET_REGION,
   credentials: {
-    accessKeyId: useRuntimeConfig().S3_ACCESS_KEY,
-    secretAccessKey: useRuntimeConfig().S3_SECRET_ACCESS_KEY,
+    accessKeyId: config.S3_ACCESS_KEY,
+    secretAccessKey: config.S3_SECRET_ACCESS_KEY,
   },
 });
 
 const puppeteerOptions = {
   args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
 };
+
 const resource = {
   link: "https://coinmarketcap.com/headlines/news/",
   postSelector: ".infinite-scroll-component .sc-b1d35755-0",
@@ -32,11 +35,10 @@ const resource = {
 const authors = ["Jasmine Chen", "Samantha Carter", "George Hammond", "Marcus Lee", "Kirill Novotarskiy"];
 
 export default defineNitroPlugin(() => {
+  if (process.env.NODE_ENV !== "production") return;
+
   try {
     mongoose.connection.on("connected", () => {
-      if (process.env.NODE_ENV !== "production") return;
-
-      // Start parsing cycle on server start
       startParsingCycle();
       startRandomInterval();
     });
@@ -46,10 +48,8 @@ export default defineNitroPlugin(() => {
 });
 
 function startRandomInterval() {
-  // Generate a random delay between 30 and 45 minutes
-  const delay = Math.random() * (45 - 30) + 30;
+  const delay = Math.random() * (45 - 30) + 30; // Generate a random delay between 30 and 45 minutes
 
-  // Call the function after the delay
   setTimeout(() => {
     startParsingCycle();
     startRandomInterval();
@@ -57,37 +57,32 @@ function startRandomInterval() {
 }
 
 async function startParsingCycle() {
-  console.log("Parsing cycle started...");
   try {
     await parseArticles();
   } catch (error) {
-    console.error("Error during parsing cycle:", error);
+    console.error(error);
   }
 }
 
 async function parseArticles() {
+  const browser = await puppeteer.launch(puppeteerOptions); // Launch a new browser instance
+  const page = await browser.newPage(); // Create a new page instance
+
   try {
-    // Launch headless Chrome
-    const browser = await puppeteer.launch(puppeteerOptions);
-    const page = await browser.newPage();
+    await page.goto(resource.link); // Navigate to the news page
 
-    // Navigate to the resource URL
-    await page.goto(resource.link);
+    await page.waitForSelector(resource.postSelector); // Wait for the news blocks to load
 
-    // Wait for the page to load and all client-side rendering to complete
-    await page.waitForSelector(resource.postSelector);
+    const links = await page.$$eval(resource.postSelector + " " + resource.linkSelector, (links) => links.map((link) => link.href)); // Extracting news article links
 
-    // Get the news links from each news block using the provided selectors
-    const links = await page.$$eval(resource.postSelector + " " + resource.linkSelector, (links) => links.map((link) => link.href));
-
-    // Parsing news articles
+    // Parsing articles
     for (let link of links) {
       if (!(new URL(link).hostname === "coinmarketcap.com")) continue;
 
       // Pass article if exist in db
       const originUrl = new URL(link);
 
-      if (await Articles.exists({ articleLink: originUrl.origin + originUrl.pathname })) continue;
+      if (await Article.exists({ articleLink: originUrl.origin + originUrl.pathname })) continue;
 
       await page.goto(link, { waitUntil: "networkidle0" });
 
@@ -96,46 +91,45 @@ async function parseArticles() {
       const dom = new JSDOM(html, { link });
       const data = await Parser.parse(link, { html: dom.serialize(), contentType: "html" });
 
-      console.log(originUrl.origin + originUrl.pathname, await Articles.exists({ articleLink: link }));
+      const rewritedContent = await rewriteArticle(data.title, JSON.stringify(data.content)); // Reweriting & summarizing article using OpenAI fine-tuned model
 
-      const openaiData = {
-        title: data.title,
-        contentHTML: JSON.stringify(data.content),
-      };
+      if (!rewritedContent) continue;
 
-      const completion = await openai.chat.completions.create({
-        messages: [
-          { role: "system", content: "Hello, I am a bot that rewrites html news articles." },
-          { role: "user", content: JSON.stringify(openaiData) },
-        ],
-        model: useRuntimeConfig().OPENAI_MODEL_ID,
-      });
-
-      if (!completion.choices[0].message.content) continue;
-
-      const modifiedContent = JSON.parse(completion.choices[0].message.content);
-
-      const imageKey = await uploadImageToS3(data.lead_image_url);
+      const imageKey = await uploadImageToS3(data.lead_image_url); // Uploading article thumbnail to AWS S3
 
       if (!imageKey) continue;
 
-      await Articles.create({
-        title: modifiedContent.title,
-        thumbnail: `https://${useRuntimeConfig().S3_BUCKET_NAME}.s3.${useRuntimeConfig().S3_BUCKET_REGION}.amazonaws.com/${imageKey}`,
-        contentHTML: modifiedContent.contentHTML,
+      await Article.create({
+        title: rewritedContent.title,
+        thumbnail: `https://${config.S3_BUCKET_NAME}.s3.${config.S3_BUCKET_REGION}.amazonaws.com/${imageKey}`,
+        contentHTML: rewritedContent.contentHTML,
         excerpt: data.excerpt,
         author: authors[Math.floor(Math.random() * authors.length)],
         articleLink: originUrl.origin + originUrl.pathname,
       });
 
-      break;
+      break; // Break the loop after successfully parsing one article
     }
-
-    await browser.close();
-    console.log("Parsing cycle ended.");
   } catch (error) {
-    console.error("Parsing cycle ended with errors.", error);
+    console.error(error);
+  } finally {
+    await page.close(); // Close the page instance
+    await browser.close(); // Close the browser instance
   }
+}
+
+async function rewriteArticle(title: string, contentHTML: string) {
+  const completion = await openai.chat.completions.create({
+    messages: [
+      { role: "system", content: "Hello, I am a bot that rewrites html news articles." },
+      { role: "user", content: JSON.stringify({ title, contentHTML }) },
+    ],
+    model: config.OPENAI_MODEL_ID,
+  });
+
+  if (!completion.choices[0].message.content) return null;
+
+  return JSON.parse(completion.choices[0].message.content);
 }
 
 async function uploadImageToS3(imageUrl: string) {
@@ -149,7 +143,7 @@ async function uploadImageToS3(imageUrl: string) {
 
   await s3.send(
     new PutObjectCommand({
-      Bucket: useRuntimeConfig().S3_BUCKET_NAME,
+      Bucket: config.S3_BUCKET_NAME,
       Key: imageKey,
       Body: buffer,
       ContentType: response.headers.get("content-type") || undefined,

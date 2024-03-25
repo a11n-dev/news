@@ -1,6 +1,6 @@
-const { Schema, model } = require("mongoose");
+import { Schema, InferSchemaType, model } from "mongoose";
 
-const ArticlesSchema = new Schema(
+const articleSchema = new Schema(
   {
     title: { type: String, required: true },
     thumbnail: { type: String, required: true },
@@ -12,6 +12,8 @@ const ArticlesSchema = new Schema(
   { collection: "articles", timestamps: true }
 );
 
-const Articles = model("Article", ArticlesSchema);
+type Article = InferSchemaType<typeof articleSchema>;
 
-module.exports = { ArticlesSchema, Articles };
+const Article = model("Article", articleSchema);
+
+export { articleSchema, Article };

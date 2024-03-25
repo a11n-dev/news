@@ -1,7 +1,7 @@
-import { Articles } from "~/server/models/article.model";
+import { Article } from "~/server/models/article.model";
 
 export default defineSitemapEventHandler(async (e) => {
-  const articles = await Articles.find({});
+  const articles = await Article.find({});
 
   return articles.map((article: any) => {
     return {

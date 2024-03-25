@@ -1,10 +1,10 @@
 import RSS from "rss";
 
-import { Articles } from "~/server/models/article.model";
+import { Article } from "~/server/models/article.model";
 
 export default defineEventHandler(async (event) => {
   try {
-    const articles = await Articles.find({}).sort({ createdAt: -1 }).limit(20);
+    const articles = await Article.find({}).sort({ createdAt: -1 }).limit(20);
 
     if (!articles) {
       throw new Error("No articles found");

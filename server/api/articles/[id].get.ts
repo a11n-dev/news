@@ -1,10 +1,10 @@
-import { Articles } from "~/server/models/article.model";
+import { Article } from "~/server/models/article.model";
 
 export default defineEventHandler(async (event) => {
   try {
     const articleId = getRouterParam(event, "id");
 
-    const article = await Articles.findOne({ _id: articleId });
+    const article = await Article.findOne({ _id: articleId });
 
     return article;
   } catch (error) {
