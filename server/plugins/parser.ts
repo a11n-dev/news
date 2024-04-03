@@ -66,9 +66,9 @@ async function startParsingCycle() {
 
 async function parseArticles() {
   const browser = await puppeteer.launch(puppeteerOptions); // Launch a new browser instance
-  const page = await browser.newPage(); // Create a new page instance
 
   try {
+    const page = await browser.newPage(); // Create a new page instance
     await page.goto(resource.link); // Navigate to the news page
 
     await page.waitForSelector(resource.postSelector); // Wait for the news blocks to load
@@ -113,7 +113,6 @@ async function parseArticles() {
   } catch (error) {
     console.error(error);
   } finally {
-    await page.close(); // Close the page instance
     await browser.close(); // Close the browser instance
   }
 }
