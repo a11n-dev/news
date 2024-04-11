@@ -47,5 +47,6 @@ export default defineNuxtConfig({
 
   sitemap: {
     sources: ["/api/sitemap"],
+    sitemaps: true,
   },
 });
