@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import OpenAI from "openai";
-import puppeteer from "puppeteer";
+import puppeteer, { type Browser } from "puppeteer";
 import Parser from "@postlight/parser";
 import { JSDOM } from "jsdom";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
@@ -22,10 +22,10 @@ const s3 = new S3Client({
   },
 });
 
+let browser: Browser;
 const puppeteerOptions = {
   args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
 };
-
 const resource = {
   link: "https://coinmarketcap.com/headlines/news/",
   postSelector: ".infinite-scroll-component .sc-b1d35755-0",
@@ -38,8 +38,8 @@ export default defineNitroPlugin(() => {
   if (process.env.NODE_ENV !== "production") return;
 
   try {
-    mongoose.connection.on("connected", () => {
-      startParsingCycle();
+    mongoose.connection.on("connected", async () => {
+      await parseArticles();
       startRandomInterval();
     });
   } catch (error) {
@@ -50,24 +50,16 @@ export default defineNitroPlugin(() => {
 function startRandomInterval() {
   const delay = Math.random() * (45 - 30) + 30; // Generate a random delay between 30 and 45 minutes
 
-  setTimeout(() => {
-    startParsingCycle();
+  setTimeout(async () => {
+    await parseArticles();
     startRandomInterval();
   }, delay * 60 * 1000);
 }
 
-async function startParsingCycle() {
-  try {
-    await parseArticles();
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 async function parseArticles() {
-  const browser = await puppeteer.launch(puppeteerOptions); // Launch a new browser instance
-
   try {
+    browser = await puppeteer.launch(puppeteerOptions); // Launch a new browser instance
+
     const page = await browser.newPage(); // Create a new page instance
     await page.goto(resource.link); // Navigate to the news page
 
