@@ -58,6 +58,8 @@ function startRandomInterval() {
 
 async function parseArticles() {
   try {
+    if (browser && browser.connected) browser.close();
+
     browser = await puppeteer.launch(puppeteerOptions); // Launch a new browser instance
 
     const page = await browser.newPage(); // Create a new page instance
@@ -103,9 +105,16 @@ async function parseArticles() {
       break; // Break the loop after successfully parsing one article
     }
   } catch (error) {
-    console.error(error);
+    console.error("Code throw error", error);
   } finally {
-    await browser.close(); // Close the browser instance
+    console.log("Closing browser");
+    await browser.close().then(() => {
+      console.log("Browser closed");
+    }); // Close the browser instance
+
+    if (browser.connected) {
+      console.log("Browser is still connected");
+    }
   }
 }
 
